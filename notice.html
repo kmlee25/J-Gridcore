@@ -183,3 +183,31 @@
   </footer>
 </body>
 </html>
+
+<script>
+async function loadNotices() {
+  const res = await fetch('/api/notices');
+  const data = await res.json();
+
+  const container = document.querySelector('.notice-page-list');
+  container.innerHTML = '';
+
+  data.forEach(item => {
+    const el = document.createElement('article');
+    el.className = 'notice-page-item';
+
+    el.innerHTML = `
+      <div class="notice-page-head">
+        <span class="tag">${item.category}</span>
+        <span class="notice-date">${item.created_at}</span>
+      </div>
+      <h3>${item.title}</h3>
+      <p>${item.content}</p>
+    `;
+
+    container.appendChild(el);
+  });
+}
+
+loadNotices();
+</script>
