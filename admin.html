@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>관리자 공지 등록 | J-GridCore</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand">
+        <span class="brand-mark">J</span>
+        <div class="brand-text">
+          <strong>J-GridCore</strong>
+          <span>Energy R&BD Innovation Platform</span>
+        </div>
+      </a>
+
+      <nav class="nav">
+        <a href="index.html">홈</a>
+        <a href="magazine.html">기술 매거진</a>
+        <a href="notice.html">공지사항</a>
+        <a href="admin.html">관리자</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="sub-hero">
+      <div class="container">
+        <p class="section-label">ADMIN</p>
+        <h1>공지사항 등록</h1>
+        <p class="section-desc sub-hero-desc">
+          관리자용 공지사항 등록 페이지입니다.
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="admin-form-wrap">
+          <form id="noticeForm" class="admin-form">
+            <div class="form-row">
+              <label for="category">카테고리</label>
+              <select id="category" name="category" required>
+                <option value="">선택하세요</option>
+                <option value="안내">안내</option>
+                <option value="세미나">세미나</option>
+                <option value="교육">교육</option>
+                <option value="협력">협력</option>
+                <option value="자료">자료</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <label for="title">제목</label>
+              <input type="text" id="title" name="title" required />
+            </div>
+
+            <div class="form-row">
+              <label for="content">내용</label>
+              <textarea id="content" name="content" rows="8" required></textarea>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-row">
+                <label for="author">작성자</label>
+                <input type="text" id="author" name="author" value="관리자" />
+              </div>
+
+              <div class="form-row">
+                <label for="created_at">작성일</label>
+                <input type="date" id="created_at" name="created_at" required />
+              </div>
+            </div>
+
+            <div class="form-row checkbox-row">
+              <label>
+                <input type="checkbox" id="is_pinned" name="is_pinned" />
+                상단 고정
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">등록</button>
+              <a href="notice.html" class="btn btn-secondary">목록 보기</a>
+            </div>
+
+            <p id="formMessage" class="form-message"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong>J-GridCore</strong>
+        <p>산·학·연·관 협력으로 만드는 전남 미래에너지 기술혁신과 실증의 중심</p>
+      </div>
+      <p>© 2026 J-GridCore. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    const form = document.getElementById("noticeForm");
+    const message = document.getElementById("formMessage");
+
+    const today = new Date().toISOString().split("T")[0];
+    document.getElementById("created_at").value = today;
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const payload = {
+        category: document.getElementById("category").value,
+        title: document.getElementById("title").value,
+        content: document.getElementById("content").value,
+        author: document.getElementById("author").value || "관리자",
+        created_at: document.getElementById("created_at").value,
+        is_pinned: document.getElementById("is_pinned").checked ? 1 : 0,
+      };
+
+      try {
+        const res = await fetch("/api/notices/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+          throw new Error(result.error || "등록 중 오류가 발생했습니다.");
+        }
+
+        message.textContent = "공지사항이 등록되었습니다.";
+        message.className = "form-message success";
+        form.reset();
+        document.getElementById("created_at").value = today;
+      } catch (err) {
+        message.textContent = err.message;
+        message.className = "form-message error";
+      }
+    });
+  </script>
+</body>
+</html>
